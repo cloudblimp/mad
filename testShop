@@ -74,7 +74,11 @@ app:layout_constraintStart_toStartOf="parent"
 app:layout_constraintEnd_toEndOf="parent"
 app:layout_constraintTop_toBottomOf="@id/button"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
+_____________________________________________________________________________________________________________________________________________________________________________________________
+
+
 MainActivity.java
+
 package com.example.test;
 import androidx.appcompat.app.AppCompatActivity;
 import android.app.DatePickerDialog;
@@ -172,6 +176,8 @@ startActivity(it);
 });
 }
 }
+___________________________________________________________________________________________________________________________________________________
+
 MyDBHandler.java
 package com.example.test;
 import android.content.Context;
@@ -221,7 +227,9 @@ db.close();
 return record;
 }
 }
+_____________________________________________________________________________________________________________________________________________________________________________________________
 result.java
+
 package com.example.test;
 import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
@@ -239,7 +247,9 @@ String Msg=in.getStringExtra("Message");
 res.setText(Msg);
 }
 }
+_________________________________________________________________________________________________________
 activity_result.xml
+
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout
 xmlns:android="http://schemas.android.com/apk/res/android"
