@@ -1,0 +1,259 @@
+Activity_main.xml
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+tools:context=".MainActivity">
+<TextView
+android:id="@+id/textview"
+android:layout_width="wrap_content"
+android:layout_height="wrap_content"
+android:text="Customer_Name"
+android:textStyle="bold"
+android:textSize="16dp"
+app:layout_constraintStart_toStartOf="parent"
+app:layout_constraintTop_toTopOf="parent"
+app:layout_constraintBottom_toTopOf="@id/spinner"
+app:layout_constraintEnd_toStartOf="@id/editText"/>
+<EditText
+android:id="@+id/editText"
+android:layout_width="wrap_content"
+android:layout_height="wrap_content"
+android:ems="10"
+android:inputType="text"
+app:layout_constraintEnd_toEndOf="parent"
+app:layout_constraintStart_toEndOf="@id/textview"
+app:layout_constraintTop_toTopOf="parent"
+app:layout_constraintBottom_toTopOf="@id/spinner"/>
+<Spinner
+android:id="@+id/spinner"
+android:layout_width="409dp"
+android:layout_height="wrap_content"
+app:layout_constraintStart_toStartOf="parent"
+app:layout_constraintEnd_toEndOf="parent"
+app:layout_constraintTop_toBottomOf="@id/textview"
+app:layout_constraintBottom_toTopOf="@id/Date"/>
+<EditText
+android:id="@+id/Date"
+android:layout_width="wrap_content"
+android:layout_height="wrap_content"
+android:ems="10"
+android:inputType="date"
+app:layout_constraintStart_toStartOf="parent"
+app:layout_constraintEnd_toEndOf="parent"
+app:layout_constraintBottom_toTopOf="@id/button"
+app:layout_constraintTop_toBottomOf="@id/spinner"/>
+<Button
+android:id="@+id/button"
+android:layout_width="wrap_content"
+android:layout_height="wrap_content"
+android:text="Insert"
+app:layout_constraintStart_toStartOf="parent"
+app:layout_constraintEnd_toStartOf="@id/button2"
+app:layout_constraintBottom_toTopOf="@id/button3"
+app:layout_constraintTop_toBottomOf="@id/Date"/>
+<Button
+android:id="@+id/button2"
+android:layout_width="wrap_content"
+android:layout_height="wrap_content"
+android:text="Display"
+app:layout_constraintStart_toEndOf="@id/button"
+app:layout_constraintEnd_toEndOf="parent"
+app:layout_constraintBottom_toTopOf="@id/button3"
+app:layout_constraintTop_toBottomOf="@id/Date"/>
+<Button
+android:id="@+id/button3"
+android:layout_width="wrap_content"
+android:layout_height="wrap_content"
+android:text="Total"
+app:layout_constraintBottom_toBottomOf="parent"
+app:layout_constraintStart_toStartOf="parent"
+app:layout_constraintEnd_toEndOf="parent"
+app:layout_constraintTop_toBottomOf="@id/button"/>
+</androidx.constraintlayout.widget.ConstraintLayout>
+MainActivity.java
+package com.example.test;
+import androidx.appcompat.app.AppCompatActivity;
+import android.app.DatePickerDialog;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.Spinner;
+import java.util.Calendar;
+public class MainActivity extends AppCompatActivity {
+MyDBHandler db;
+EditText name;
+Button ins,dis,total;
+Spinner sp;
+EditText date;
+String[] items={"1","2","3","4","5"};
+String selecteditem;
+String diff;
+@Override
+protected void onCreate(Bundle savedInstanceState) {
+super.onCreate(savedInstanceState);
+setContentView(R.layout.activity_main);
+name=findViewById(R.id.editText);
+ins=findViewById(R.id.button);
+dis=findViewById(R.id.button2);
+total=findViewById(R.id.button3);
+sp=findViewById(R.id.spinner);
+date=findViewById(R.id.Date);
+ArrayAdapter adapter= new ArrayAdapter<>(MainActivity.this,
+android.R.layout.simple_spinner_dropdown_item,items);
+sp.setAdapter(adapter);
+sp.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+@Override
+public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+selecteditem=parent.getItemAtPosition(position).toString();
+}
+@Override
+public void onNothingSelected(AdapterView<?> parent) {
+}
+});
+date.setOnClickListener(new View.OnClickListener() {
+@Override
+public void onClick(View v) {
+Calendar c= Calendar.getInstance();
+int pyear=c.get(Calendar.YEAR);
+int pmonth=c.get(Calendar.MONTH);
+int pdate=c.get(Calendar.DATE);
+DatePickerDialog dialog=new
+DatePickerDialog(MainActivity.this,android.R.style.Theme_DeviceDefault_DialogWhenLarge, new
+DatePickerDialog.OnDateSetListener() {
+@Override
+public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+diff= String.valueOf(dayOfMonth+"/"+(month+1)+"/"+year);
+date.setText(diff);
+}
+},pyear,pmonth,pdate);
+dialog.show();
+}
+});
+db=new MyDBHandler(getApplicationContext(),"consumer",null,1);
+ins.setOnClickListener(new View.OnClickListener() {
+@Override
+public void onClick(View v) {
+String cname=name.getText().toString();
+String citem=selecteditem;
+String cdate=diff;
+db.onInsert(cname,citem,cdate);
+Intent it=new Intent(getApplicationContext(),result.class);
+it.putExtra("Message","recordInserted");
+startActivity(it);
+}
+});
+dis.setOnClickListener(new View.OnClickListener() {
+@Override
+public void onClick(View v) {
+String cname=name.getText().toString();
+String rec=db.onDisplay(cname);
+Intent it=new Intent(MainActivity.this,result.class);
+it.putExtra("Message",rec);
+startActivity(it);
+}
+});
+total.setOnClickListener(new View.OnClickListener() {
+@Override
+public void onClick(View v) {
+String rec=db.OnTotal();
+Intent it=new Intent(MainActivity.this,result.class);
+it.putExtra("Message",rec);
+startActivity(it);
+}
+});
+}
+}
+MyDBHandler.java
+package com.example.test;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+import androidx.annotation.Nullable;
+public class MyDBHandler extends SQLiteOpenHelper {
+public MyDBHandler(@Nullable Context context, @Nullable String name, @Nullable
+SQLiteDatabase.CursorFactory factory, int version) {
+super(context, name, factory, version);
+}
+@Override
+public void onCreate(SQLiteDatabase db) {
+db.execSQL("create table consumer(name varchar(20),item varchar(20),date varchar(20))");
+}
+@Override
+public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+}
+public void onInsert(String name,String item,String date){
+SQLiteDatabase db=this.getWritableDatabase();
+db.execSQL("insert into consumer values(?,?,?)",new String[]{name,item,date});
+db.close();
+}
+public String onDisplay(String name){
+String record="";
+SQLiteDatabase db=this.getReadableDatabase();
+Cursor cursor=db.rawQuery("select * from consumer where name=?",new String[]{name} );
+while (cursor.moveToNext()){
+String a= cursor.getString(0);
+String b= cursor.getString(1);
+String c= cursor.getString(2);
+record+=a+"\t"+b+"\t"+c+"\n";
+}
+db.close();
+return record;
+}
+public String OnTotal(){
+String record="";
+SQLiteDatabase db=this.getReadableDatabase();
+Cursor cursor=db.rawQuery("select count(distinct name) from customer",null);
+while (cursor.moveToNext()){
+String i=cursor.getString(0);
+record=i;
+}
+db.close();
+return record;
+}
+}
+result.java
+package com.example.test;
+import androidx.appcompat.app.AppCompatActivity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.widget.TextView;
+public class result extends AppCompatActivity {
+TextView res;
+@Override
+protected void onCreate(Bundle savedInstanceState) {
+super.onCreate(savedInstanceState);
+setContentView(R.layout.activity_result);
+res=findViewById(R.id.textView);
+Intent in =getIntent();
+String Msg=in.getStringExtra("Message");
+res.setText(Msg);
+}
+}
+activity_result.xml
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+tools:context=".result">
+<TextView
+android:id="@+id/textView"
+android:layout_width="wrap_content"
+android:layout_height="wrap_content"
+app:layout_constraintStart_toStartOf="parent"
+app:layout_constraintEnd_toEndOf="parent"
+app:layout_constraintBottom_toBottomOf="parent"
+app:layout_constraintTop_toTopOf="parent"/>
+</androidx.constraintlayout.widget.ConstraintLayout>
